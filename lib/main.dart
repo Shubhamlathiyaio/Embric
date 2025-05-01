@@ -1,4 +1,4 @@
-
+import 'package:calculator/controllers/design_controller.dart';
 import 'package:calculator/screens/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +12,7 @@ Future<void> main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(DesignController());
   Map<String, Map<String, String>> _languages = await dep.init();
 
   runApp(MyApp(languages: _languages));

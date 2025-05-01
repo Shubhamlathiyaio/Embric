@@ -1,6 +1,10 @@
 // ignore_for_file: unused_import, deprecated_member_use, unused_field, prefer_final_fields, non_constant_identifier_names, avoid_print, annotate_overrides
 
+import 'package:calculator/controllers/design_controller.dart';
+import 'package:calculator/models/design.dart';
+import 'package:calculator/models/design_part.dart';
 import 'package:calculator/screens/add_design_view.dart';
+import 'package:calculator/screens/home_common/design_part_input.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -98,6 +102,8 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
   }
 
+  final design = Get.find<DesignController>();
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgcolor,
@@ -160,6 +166,12 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   SizedBox(height: 20),
                   calcBox(),
+                  SizedBox(width: Get.width * 0.9,
+                  child: Column(
+                    children: [
+                      DesignPartInputRow(label: "C-Pallu", part: design.cPallu, total: design.cPalluTotal, onChanged: )
+                    ],
+                  ),),
                   SizedBox(height: 20),
                   Center(
                     child: Container(
@@ -285,6 +297,8 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget calcBox() {
+    DesignPart designPart = DesignPart(type: DesignPartType.cPallu);
+    Design design = Design(cPallu: designPart, pallu: DesignPart(type: DesignPartType.cPallu), stk: DesignPart(type: DesignPartType.stk), blz: DesignPart(type: DesignPartType.blz));
     return Center(
         child: SizedBox(
       width: Get.width * 0.9,
@@ -327,91 +341,9 @@ class _HomeViewState extends State<HomeView> {
           ),
           SizedBox(height: 5),
           // C-pallu==============================================================
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: Get.width * 0.15,
-                child: CommonWidget().poppinsText(text: "C-Pallu"),
-              ),
-              Container(
-                height: 50,
-                width: Get.width * 0.5,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.softtextcolor,width: 2),
-                  color: AppColors.whitecolor,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(
-                      width: Get.width * 0.22,
-                      height: 50,
-                      child: Center(
-                        child: TextFormField(keyboardType: TextInputType.number,
-                          controller: _cpallustichRatecontroller,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "00",
-                              hintStyle: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      AppColors.softtextcolor.withOpacity(.5))),
-                          onChanged: (value) {
-                            allcalculate();
-                          },
-                        ),
-                      ),
-                    ),
-                    Container(
-                        height: 10, width: 1, color: AppColors.blackcolor),
-                    SizedBox(
-                      width: Get.width * 0.22,
-                      height: 50,
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: _cpalluheadRatecontroller,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "00",
-                            hintStyle: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    AppColors.softtextcolor.withOpacity(.5))),
-                        onChanged: (value) {
-                          allcalculate();
-                        },
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              CommonWidget().poppinsText(
-                  text: "=", textSize: 14.0, textWeight: FontWeight.w400),
-              Container(
-                height: 50,
-                width: Get.width * 0.18,
-                decoration: BoxDecoration(
-                  color: AppColors.whitecolor,
-                ),
-                child: Center(
-                  child: CommonWidget().poppinsText(
-                      text: c_pallu.toStringAsFixed(2),
-                      textSize: 16.0,
-                      textWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
+          DesignPartInputRow(label: "C-Pallu", part: designPart, total: designPart.total(design.addOnPrice), onChanged: () {
+            
+          },),
 // pallu========================================================================
           SizedBox(height: 5),
           Row(
