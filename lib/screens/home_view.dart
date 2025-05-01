@@ -1,5 +1,4 @@
 import 'package:calculator/controllers/design_controller.dart';
-import 'package:calculator/screens/add_design_view.dart';
 import 'package:calculator/screens/home_common/design_part_input.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -36,7 +35,7 @@ class _HomeViewState extends State<HomeView> {
                     textWeight: FontWeight.w700),
               ),
               commonBigField(
-                  label: "Stitch Rate:",
+                  label: "Stitch Rate",
                   controller: design.stitchRateController,
                   onChanged: design.update),
               Center(
@@ -79,7 +78,7 @@ class _HomeViewState extends State<HomeView> {
         child: TotalSummaryCard(
           getTotal: () => design.grandTotal,
           onClear: design.clearAllFields,
-          onSave: () => Get.to(AddDesignView()),
+          onSave: () => design.validator(),
         ),
       ),
     );
@@ -179,7 +178,7 @@ class TotalSummaryCard extends StatelessWidget {
                 text: getT(),
                 textSize: 30.0,
                 textWeight: FontWeight.bold,
-                textColor: AppColors.softtextcolor.withOpacity(.5),
+                textColor: AppColors.blackcolor,
               ),
             ),
             const SizedBox(height: 10),

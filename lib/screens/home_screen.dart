@@ -25,22 +25,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<ItemConfig> _items = [
     ItemConfig(
-      title: "List",
-      icon: SvgPicture.asset(AppImage.svgIconPath + "list_a.svg"),
-      inactiveIcon: SvgPicture.asset(AppImage.svgIconPath + "list.svg"),
+      title: "Designs",
+      icon: SvgPicture.asset("${AppImage.svgIconPath}list_a.svg"),
+      inactiveIcon: SvgPicture.asset("${AppImage.svgIconPath}list.svg"),
       activeForegroundColor: AppColors.redcolor,
       inactiveBackgroundColor: Colors.white,
     ),
     ItemConfig(
       title: "Home",
-      icon: SvgPicture.asset(AppImage.svgIconPath + "home_a.svg"),
-      inactiveIcon: SvgPicture.asset(AppImage.svgIconPath + "home.svg"),
+      icon: SvgPicture.asset("${AppImage.svgIconPath}home_a.svg"),
+      inactiveIcon: SvgPicture.asset("${AppImage.svgIconPath}home.svg"),
       activeForegroundColor: AppColors.redcolor,
     ),
     ItemConfig(
       title: "Settings",
-      icon: SvgPicture.asset(AppImage.svgIconPath + "settings_a.svg"),
-      inactiveIcon: SvgPicture.asset(AppImage.svgIconPath + "settings.svg"),
+      icon: SvgPicture.asset("${AppImage.svgIconPath}settings_a.svg"),
+      inactiveIcon: SvgPicture.asset("${AppImage.svgIconPath}settings.svg"),
       activeForegroundColor: AppColors.redcolor,
     ),
   ];
@@ -66,7 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
             return GestureDetector(
               onTap: () => _onItemTapped(index),
-              child: SizedBox(width: 60,
+              child: SizedBox(
+                width: 60,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -82,10 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     isSelected ? item.icon : item.inactiveIcon,
                     const SizedBox(height: 4),
                     Text(
-                      item.title??"",
+                      item.title ?? "",
                       style: TextStyle(
-                        color:
-                            isSelected ? item.activeForegroundColor : Colors.grey,
+                        color: isSelected
+                            ? item.activeForegroundColor
+                            : Colors.grey,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
                       ),

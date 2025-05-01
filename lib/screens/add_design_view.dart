@@ -1,18 +1,17 @@
 import 'dart:io';
-
 import 'package:calculator/controllers/design_controller.dart';
 import 'package:calculator/helpers/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../helpers/common_widget.dart';
 
 class AddDesignView extends StatelessWidget {
   AddDesignView({super.key});
-  final design = Get.find<DesignController>();
-  final List<String> designImages = [];
+  final DesignController design = Get.find<DesignController>();
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +32,9 @@ class AddDesignView extends StatelessWidget {
               const SizedBox(height: 20),
               _buildDesignInputCard(),
               const SizedBox(height: 15),
-              _buildUploadButton(),
+              _buildUploadButton(design.designImages),
               const SizedBox(height: 10),
-              _buildImagePreviewList(designImages),
+              _buildImagePreviewList(design.designImages),
               const SizedBox(height: 20),
               _buildSummaryCard(),
             ],
@@ -46,50 +45,60 @@ class AddDesignView extends StatelessWidget {
   }
 
   Widget _buildDesignInputCard() {
-    return Center(
-      child: Container(
-        width: Get.width * 0.9,
-        padding: const EdgeInsets.all(10),
-        decoration: _boxDecoration(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildTextFieldColumn("Design No:"),
-            _divider(),
-            _buildTextFieldColumn("Design Name:"),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextFieldColumn(String label) {
-    return SizedBox(
-      width: Get.width * 0.35,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  return Center(
+    child: Container(
+      width: Get.width * 0.9,
+      padding: const EdgeInsets.all(10),
+      decoration: _boxDecoration(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CommonWidget().poppinsText(
-            text: label,
-            textSize: 12.0,
-            textWeight: FontWeight.w500,
-          ),
-          TextFormField(
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "00",
-              hintStyle: GoogleFonts.poppins(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: AppColors.softtextcolor.withOpacity(.5),
-              ),
-            ),
-          ),
+          // Design Number on the left (balanced size)
+          _buildTextFieldColumn("Design No:", design.designNumberController, TextInputType.number, Get.width * 0.25, true),
+          
+          _divider(),
+          
+          // Design Name on the right (balanced size)
+          _buildTextFieldColumn("Design Name:", design.designNameController, TextInputType.text, Get.width * 0.55, false),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildTextFieldColumn(String label, TextEditingController controller, TextInputType keyboardType, double width, bool isSmall) {
+  return SizedBox(
+    width: width,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CommonWidget().poppinsText(
+          text: label,
+          textSize: 12.0,
+          textWeight: FontWeight.w500,
+        ),
+        TextFormField(
+          controller: controller,
+          style: TextStyle(
+            fontSize: isSmall ?  24:18, // Adjust font size for balance
+            fontWeight: FontWeight.bold,
+          ),
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: isSmall ? "00" : "Enter Design Name", // Adjust hint text
+            hintStyle: GoogleFonts.poppins(
+              fontSize: isSmall ?  24:18, // Consistent font size adjustments
+              fontWeight: FontWeight.bold,
+              color: AppColors.softtextcolor.withOpacity(.5),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _divider() {
     return Container(
@@ -99,90 +108,118 @@ class AddDesignView extends StatelessWidget {
     );
   }
 
-  Widget _buildUploadButton() {
-    return Container(
-      height: 50,
-      width: Get.width * 0.9,
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.redcolor),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.cloud_upload_outlined, color: AppColors.redcolor),
-          const SizedBox(width: 10),
-          CommonWidget().poppinsText(
-            text: "Upload Design Image",
-            textSize: 12.0,
-            textWeight: FontWeight.w400,
-          ),
-        ],
+  Widget _buildUploadButton(RxList<String> images) {
+    return GestureDetector(
+      onTap: () => images.length < 5
+          ? pickImage(images)
+          : Get.snackbar(
+              backgroundColor: Colors.black54,
+              barBlur: 8,
+              colorText: Colors.white,
+              "Can Not Upload More",
+              "You can not uplonde more then 5 images"),
+      child: Container(
+        height: 50,
+        width: Get.width * 0.9,
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.redcolor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_upload_outlined, color: AppColors.redcolor),
+            const SizedBox(width: 10),
+            CommonWidget().poppinsText(
+              text: "Upload Design Image",
+              textSize: 12.0,
+              textWeight: FontWeight.w400,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildImagePreviewList(List<String> images) {
+  Future<void> pickImage(RxList<String> imageList) async {
+    Permission permission =
+        Platform.isIOS ? Permission.photos : Permission.storage;
+    var status = await permission.request();
+
+    if (status.isGranted) {
+      final XFile? pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null && imageList.length < 5) {
+        imageList.add(pickedFile.path);
+      }
+    } else {
+      print("Permission denied");
+      openAppSettings();
+    }
+  }
+
+  Widget _buildImagePreviewList(RxList<String> images) {
     // max 4 images + 1 add icon
     final showAddIcon = images.length < 5;
-    final itemCount = images.length + (showAddIcon ? 1 : 0);
 
-    return SizedBox(
-      height: 75,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        itemCount: itemCount,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, index) {
-          // If it's the add icon card
-          if (showAddIcon && index == 0) {
-            return GestureDetector(
-              onTap: () async {
-                final XFile? pickedFile =
-                    await ImagePicker().pickImage(source: ImageSource.gallery);
-
-                if (pickedFile != null) {
-                  // Check if the number of images is less than 5 before adding
-                  if (design.designImages.length < 5) {
-                    design.designImages.add(pickedFile.path);
-                  }
-                }
-              },
-              child: Container(
-                width: 75,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: AppColors.whitecolor,
+    return Obx(
+      () => SizedBox(
+        height: 75,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          itemCount: design.designImages.length +
+              (design.designImages.length < 5 ? 1 : 0),
+          separatorBuilder: (_, __) => const SizedBox(width: 10),
+          itemBuilder: (context, index) {
+            if (showAddIcon && index == design.designImages.length) {
+              // Add icon goes to the end
+              return GestureDetector(
+                onTap: () => pickImage(images),
+                child: Container(
+                  width: 75,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: AppColors.whitecolor,
+                  ),
+                  child: Center(
+                    child: Icon(Icons.add, size: 30, color: AppColors.redcolor),
+                  ),
                 ),
-                child: Center(
-                  child: Icon(Icons.add, size: 30, color: AppColors.redcolor),
-                ),
-              ),
-            );
-          }
-
-          // Image card
-          final imageIndex = showAddIcon ? index - 1 : index;
-          final imagePath = images[imageIndex];
-
-          return Container(
-            width: 100,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              image: DecorationImage(
-                image: FileImage(File(imagePath)), // assumes local image path
-                fit: BoxFit.cover,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.softtextcolor.withOpacity(.2),
-                  blurRadius: 5,
-                ),
-              ],
-            ),
-          );
-        },
+              );
+            } else {
+              // Show selected images first
+              final imagePath = design.designImages[index];
+              return Stack(
+                children: [
+                  Container(
+                    width: 75,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      image: DecorationImage(
+                        image: FileImage(File(imagePath)),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () => images.removeAt(index),
+                      child: CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.black.withOpacity(0.5),
+                        child: const Icon(Icons.close,
+                            size: 14, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+        ),
       ),
     );
   }

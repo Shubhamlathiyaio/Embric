@@ -1,3 +1,5 @@
+import 'package:calculator/helpers/colors.dart';
+import 'package:calculator/screens/add_design_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:calculator/models/design.dart';
@@ -7,10 +9,14 @@ import 'package:image_picker/image_picker.dart';
 class DesignController extends GetxController {
   // Design Model with Observable
   final Rx<Design> design = Design(
-    cPallu: DesignPart(type: DesignPartType.cPallu),
-    pallu: DesignPart(type: DesignPartType.pallu),
-    stk: DesignPart(type: DesignPartType.stk),
-    blz: DesignPart(type: DesignPartType.blz),
+    cPallu: DesignPart(
+        type: DesignPartType.cPallu, head: getDefault(DesignPartType.cPallu)),
+    pallu: DesignPart(
+        type: DesignPartType.pallu, head: getDefault(DesignPartType.pallu)),
+    stk: DesignPart(
+        type: DesignPartType.stk, head: getDefault(DesignPartType.stk)),
+    blz: DesignPart(
+        type: DesignPartType.blz, head: getDefault(DesignPartType.blz)),
     stitchRate: '0.4',
     addOnPrice: '',
   ).obs;
@@ -18,6 +24,8 @@ class DesignController extends GetxController {
   // Controllers for stitchRate and addOnPrice
   final stitchRateController = TextEditingController(text: '0.4');
   final addOnPriceController = TextEditingController();
+  final designNumberController = TextEditingController();
+  final designNameController = TextEditingController();
 
   // Accessors
   DesignPart get cPallu => design.value.cPallu;
@@ -27,6 +35,9 @@ class DesignController extends GetxController {
 
   double get stitchRate => double.tryParse(stitchRateController.text) ?? 0;
   double get addOnPrice => double.tryParse(addOnPriceController.text) ?? 0;
+
+  String get designNumber => designNumberController.text;
+  String get designName => designNameController.text;
 
   // Totals
   final cPalluTotal = 0.0.obs;
@@ -89,9 +100,38 @@ class DesignController extends GetxController {
     // Clear global controllers
     stitchRateController.clear();
     addOnPriceController.clear();
+    designNumberController.clear();
+    designNameController.clear();
 
     // Reset totals
     updateTotal();
+  }
+
+  bool isAllPartHasData() {
+    for (var part in [cPallu, pallu, stk, blz]) {
+      if (!(part.headController.text != '' &&
+          part.stitchesController.text != '')) return false;
+    }
+    return true;
+  }
+
+  void validator() {
+    // Check if Design Number and Name are not empty
+    if (isAllPartHasData() &&
+        stitchRateController.text != '' &&
+        addOnPriceController.text != '') {
+      Get.to(() => AddDesignView());
+    } else {
+      Get.snackbar(
+        "Validation Error",
+        "Any Field Can Not Empty",
+        backgroundColor: AppColors.redcolor.withOpacity(.6),
+        barBlur: 8,
+        colorText: Colors.white,
+      );
+
+      // If fields are not empty, navigate to AddDesignView
+    }
   }
 
   RxList<String> designImages = <String>[].obs;
