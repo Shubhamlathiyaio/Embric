@@ -40,6 +40,7 @@ dependencies:
   persistent_bottom_nav_bar_v2: ^5.3.1
   shared_preferences: ^2.5.3
   flutter_svg: ^2.1.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

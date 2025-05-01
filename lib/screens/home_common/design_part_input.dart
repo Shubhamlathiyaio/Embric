@@ -7,16 +7,17 @@ import 'package:calculator/models/design_part.dart';
 class DesignPartInputRow extends StatelessWidget {
   final String label;
   final DesignPart part;
-  final double total;
-  final VoidCallback onChanged;
+  final Rx<double> Function() getTotal;
 
-  const DesignPartInputRow({
-    super.key,
-    required this.label,
-    required this.part,
-    required this.total,
-    required this.onChanged,
-  });
+  const DesignPartInputRow(
+      {super.key,
+      required this.label,
+      required this.part,
+      required this.getTotal});
+  String getT() {
+    final Rx<double> temp = getTotal();
+    return temp.value.toStringAsFixed(2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,51 +32,9 @@ class DesignPartInputRow extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              SizedBox(
-                width: Get.width * 0.22,
-                height: 50,
-                child: Center(
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    controller: part.stitchesController,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "00",
-                      hintStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.softtextcolor.withOpacity(.5),
-                      ),
-                    ),
-                    onChanged: (_) => onChanged(),
-                  ),
-                ),
-              ),
+              CommonInputField(controller: part.stitchesController),
               Container(height: 10, width: 1, color: AppColors.blackcolor),
-              SizedBox(
-                width: Get.width * 0.22,
-                height: 50,
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: part.headController,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "00",
-                    hintStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.softtextcolor.withOpacity(.5),
-                    ),
-                  ),
-                  onChanged: (_) => onChanged(),
-                ),
-              )
+              CommonInputField(controller: part.headController),
             ],
           ),
         ),
@@ -85,14 +44,52 @@ class DesignPartInputRow extends StatelessWidget {
           textWeight: FontWeight.w400,
         ),
         CommonFrameContainer(
-          width: Get.width * .18,
-          child: CommonWidget().poppinsText(
-            text: total.toStringAsFixed(2),
-            textSize: 16.0,
-            textWeight: FontWeight.w700,
+            width: Get.width * .18,
+            child: Obx(
+              () => CommonWidget().poppinsText(
+                text: getT(),
+                textSize: 16.0,
+                textWeight: FontWeight.w700,
+              ),
+            )),
+      ],
+    );
+  }
+}
+
+class CommonInputField extends StatelessWidget {
+  final TextEditingController controller;
+
+  const CommonInputField({
+    super.key,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: Get.width * 0.22,
+      height: 50,
+      child: Center(
+        child: TextFormField(
+          keyboardType: TextInputType.number,
+          controller: controller,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: "00",
+            hintStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.softtextcolor.withOpacity(.5),
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
