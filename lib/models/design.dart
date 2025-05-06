@@ -1,25 +1,35 @@
-import 'package:calculator/models/design_part.dart';
-import 'package:flutter/material.dart';
+// lib/models/design.dart
+
+import 'design_part.dart';
 
 class Design {
+  final String designNumber;
+  final String designName;
+  final double stitchRate;
+  final double addOnPrice;
   final DesignPart cPallu;
   final DesignPart pallu;
   final DesignPart stk;
   final DesignPart blz;
-
-  final TextEditingController stitchRateController;
-  final TextEditingController addOnPriceController;
+  final List<String> imagePaths;
 
   Design({
+    this.designNumber="",
+    this.designName="",
+    required this.stitchRate,
+    required this.addOnPrice,
     required this.cPallu,
     required this.pallu,
     required this.stk,
     required this.blz,
-    String stitchRate = "0",
-    String addOnPrice = "0",
-  })  : stitchRateController = TextEditingController(text: stitchRate),
-        addOnPriceController = TextEditingController(text: addOnPrice);
+    this.imagePaths = const [],
+  });
 
-  double get stitchRate => double.tryParse(stitchRateController.text) ?? 0;
-  double get addOnPrice => double.tryParse(addOnPriceController.text) ?? 0;
+  double get cPalluTotal => cPallu.total(stitchRate);
+  double get palluTotal => pallu.total(stitchRate);
+  double get stkTotal => stk.total(stitchRate);
+  double get blzTotal => blz.total(stitchRate);
+
+  double get grandTotal =>
+      cPalluTotal + palluTotal + stkTotal + blzTotal + addOnPrice;
 }

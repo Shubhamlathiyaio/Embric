@@ -1,0 +1,4 @@
+entities:
+  - lib/design_entity.dart
+  - lib/design_part_entity.dart
+  - lib/image_path_entity.dart

@@ -1,13 +1,19 @@
-import 'package:calculator/helpers/colors.dart';
+import 'package:calculator/controllers/design_form_controller.dart';
+import 'package:calculator/controllers/design_mapper.dart';
+import 'package:calculator/controllers/storage_controller.dart';
+import 'package:calculator/helpers/defaults.dart';
+import 'package:calculator/models/design_entity.dart';
 import 'package:calculator/screens/add_design_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:calculator/models/design.dart';
-import 'package:calculator/models/design_part.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../models/design.dart';
+import '../models/design_part.dart';
+
 class DesignController extends GetxController {
-  // Design Model with Observable
+  final DesignFormController formController = Get.find<DesignFormController>();
+
   final Rx<Design> design = Design(
     cPallu: DesignPart(
         type: DesignPartType.cPallu, head: getDefault(DesignPartType.cPallu)),
@@ -17,27 +23,17 @@ class DesignController extends GetxController {
         type: DesignPartType.stk, head: getDefault(DesignPartType.stk)),
     blz: DesignPart(
         type: DesignPartType.blz, head: getDefault(DesignPartType.blz)),
-    stitchRate: '0.4',
-    addOnPrice: '',
+    stitchRate: 0.40,
+    addOnPrice: 0,
   ).obs;
 
-  // Controllers for stitchRate and addOnPrice
-  final stitchRateController = TextEditingController(text: '0.4');
-  final addOnPriceController = TextEditingController();
-  final designNumberController = TextEditingController();
-  final designNameController = TextEditingController();
+  // RxList<String> designImages = <String>[].obs;
 
-  // Accessors
-  DesignPart get cPallu => design.value.cPallu;
-  DesignPart get pallu => design.value.pallu;
-  DesignPart get stk => design.value.stk;
-  DesignPart get blz => design.value.blz;
+  double get stitchRate => double.tryParse(formController.stitchRateController.text) ?? 0;
+  double get addOnPrice => double.tryParse(formController.addOnPriceController.text) ?? 0;
 
-  double get stitchRate => double.tryParse(stitchRateController.text) ?? 0;
-  double get addOnPrice => double.tryParse(addOnPriceController.text) ?? 0;
-
-  String get designNumber => designNumberController.text;
-  String get designName => designNameController.text;
+  String get designNumber => formController.designNumberController.text;
+  String get designName => formController.designNameController.text;
 
   // Totals
   final cPalluTotal = 0.0.obs;
@@ -46,112 +42,112 @@ class DesignController extends GetxController {
   final blzTotal = 0.0.obs;
   final grandTotal = 0.0.obs;
 
-  // On Init
   @override
   void onInit() {
     super.onInit();
-    // Add listeners to update totals when values change
     _bindControllers();
     updateTotal();
   }
 
   void _bindControllers() {
-    // DesignPart listeners
-    for (var part in [cPallu, pallu, stk, blz]) {
-      part.headController.addListener(updateTotal);
-      part.stitchesController.addListener(updateTotal);
+    for (var controller in [
+      formController.stitchRateController,
+      formController.addOnPriceController,
+      formController.cPalluHead,
+      formController.cPalluStitches,
+      formController.palluHead,
+      formController.palluStitches,
+      formController.stkHead,
+      formController.stkStitches,
+      formController.blzHead,
+      formController.blzStitches,
+    ]) {
+      controller.addListener(updateTotal);
     }
-
-    // Global values
-    stitchRateController.addListener(updateTotal);
-    addOnPriceController.addListener(updateTotal);
   }
 
-  // Update all totals
+void _updatePartValues(DesignPart part, TextEditingController headCtrl, TextEditingController stitchesCtrl) {
+  part.head = double.tryParse(headCtrl.text) ?? 0;
+  part.stitches = double.tryParse(stitchesCtrl.text) ?? 0;
+}
+
+
   void updateTotal() {
-    cPalluTotal.value = cPallu.total(stitchRate);
-    palluTotal.value = pallu.total(stitchRate);
-    stkTotal.value = stk.total(stitchRate);
-    blzTotal.value = blz.total(stitchRate);
-    grandTotal.value = finalTotal();
-  }
+  _updatePartValues(design.value.cPallu, formController.cPalluHead, formController.cPalluStitches);
+  _updatePartValues(design.value.pallu, formController.palluHead, formController.palluStitches);
+  _updatePartValues(design.value.stk, formController.stkHead, formController.stkStitches);
+  _updatePartValues(design.value.blz, formController.blzHead, formController.blzStitches);
 
-// Final total
-  double finalTotal() =>
-      cPalluTotal.value +
-      palluTotal.value +
-      stkTotal.value +
-      blzTotal.value +
-      addOnPrice;
+  cPalluTotal.value = design.value.cPallu.total(stitchRate);
+  palluTotal.value = design.value.pallu.total(stitchRate);
+  stkTotal.value = design.value.stk.total(stitchRate);
+  blzTotal.value = design.value.blz.total(stitchRate);
+  grandTotal.value = finalTotal();
+}
 
-  // Individual getters
-  double getC_PalluTotal() => cPalluTotal.value;
-  double getPalluTotal() => palluTotal.value;
-  double getStkTotal() => stkTotal.value;
-  double getBlzTotal() => blzTotal.value;
 
-  void clearAllFields() {
-    // Clear part controllers
-    for (var part in [cPallu, pallu, stk, blz]) {
-      part.headController.clear();
-      part.stitchesController.clear();
-    }
+  double finalTotal() => cPalluTotal.value + palluTotal.value + stkTotal.value + blzTotal.value + addOnPrice;
 
-    // Clear global controllers
-    stitchRateController.clear();
-    addOnPriceController.clear();
-    designNumberController.clear();
-    designNameController.clear();
+  void saveDesign() {
+    final designEntity = DesignEntity(
+      designNumber: designNumber,
+      designName: designName,
+      stitchRate: stitchRate.toString(),
+      addOnPrice: addOnPrice.toString(),
+    );
 
-    // Reset totals
-    updateTotal();
+    designEntity.addParts(
+      partToEntity(design.value.cPallu),
+      partToEntity(design.value.pallu),
+      partToEntity(design.value.stk),
+      partToEntity(design.value.blz),
+    );
+
+    designEntity.addImagePaths(formController.selectedImages);
+    Get.find<StorageController>().saveDesign(designEntity);
   }
 
   bool isAllPartHasData() {
-    for (var part in [cPallu, pallu, stk, blz]) {
-      if (!(part.headController.text != '' &&
-          part.stitchesController.text != '')) return false;
+    for (var pair in [
+      [formController.cPalluHead, formController.cPalluStitches],
+      [formController.palluHead, formController.palluStitches],
+      [formController.stkHead, formController.stkStitches],
+      [formController.blzHead, formController.blzStitches],
+    ]) {
+      if (pair[0].text.isEmpty || pair[1].text.isEmpty) return false;
     }
     return true;
   }
 
   void validator() {
-    // Check if Design Number and Name are not empty
-    if (isAllPartHasData() &&
-        stitchRateController.text != '' &&
-        addOnPriceController.text != '') {
+    if (isAllPartHasData() && formController.stitchRateController.text.isNotEmpty) {
       Get.to(() => AddDesignView());
     } else {
       Get.snackbar(
         "Validation Error",
-        "Any Field Can Not Empty",
-        backgroundColor: AppColors.redcolor.withOpacity(.6),
-        barBlur: 8,
+        "Any Field Can Not Be Empty",
+        backgroundColor: Colors.red.withOpacity(.6),
         colorText: Colors.white,
+        barBlur: 8,
       );
-
-      // If fields are not empty, navigate to AddDesignView
     }
   }
 
-  RxList<String> designImages = <String>[].obs;
+  // final ImagePicker _picker = ImagePicker();
 
-  final ImagePicker _picker = ImagePicker();
+  // Future<void> pickImage() async {
+  //   final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null && formController.selectedImages.length < 5) {
+  //     formController.selectedImages.add(pickedFile.path);
+  //   }
+  // }
 
-  // Method to pick image
-  Future<void> pickImage() async {
-    // Show image picker dialog
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+  // void removeImage(int index) {
+  //   formController.selectedImages.removeAt(index);
+  // }
 
-    if (pickedFile != null && designImages.length < 5) {
-      // Add picked image to list
-      designImages.add(pickedFile.path);
-    }
-  }
-
-  // Method to remove image
-  void removeImage(int index) {
-    designImages.removeAt(index);
+  void clearAllFields() {
+    formController.clearForm();
+    updateTotal();
   }
 }

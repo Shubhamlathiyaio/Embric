@@ -1,134 +1,152 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
+import 'package:calculator/controllers/design_details_contrller.dart';
 import 'package:calculator/helpers/colors.dart';
+import 'package:calculator/models/design.dart';
+import 'package:calculator/models/design_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../helpers/common_widget.dart';
 
 class DesignDetailView extends StatelessWidget {
   const DesignDetailView({super.key});
 
+  BoxDecoration get _boxDecoration => BoxDecoration(
+        color: AppColors.whitecolor,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.softtextcolor.withOpacity(.2),
+            blurRadius: 5,
+          )
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
+    final Design design = Get.arguments;
+    final DesignDetailController controller = Get.put(DesignDetailController());
+
     return Scaffold(
       backgroundColor: AppColors.bgcolor,
-      appBar: AppBar(
-        backgroundColor: AppColors.bgcolor,
-      ),
+      appBar: AppBar(backgroundColor: AppColors.bgcolor),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            const SizedBox(height: 10),
             Center(
-              child: Container(
-                height: Get.height * 0.5,
-                width: Get.width * 0.9,
-                decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          color: AppColors.softtextcolor.withOpacity(.2),
-                          blurRadius: 5)
-                    ],
-                    color: AppColors.whitecolor,
-                    borderRadius: BorderRadius.circular(15)),
-              ),
-            ),
-            SizedBox(height: 10),
-            SizedBox(
-              height: 100,
-              child: GridView.builder(
-                itemCount: 5,
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                physics: ClampingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10),
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 100,
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: AppColors.softtextcolor.withOpacity(.2),
-                              blurRadius: 5)
-                        ],
-                        color: AppColors.whitecolor,
-                        borderRadius: BorderRadius.circular(15)),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 15),
-            Container(
-              width: Get.width * 0.9,
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                        color: AppColors.softtextcolor.withOpacity(.2),
-                        blurRadius: 5)
-                  ],
-                  color: AppColors.whitecolor,
-                  borderRadius: BorderRadius.circular(15)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CommonWidget().poppinsText(
-                      text: "#SP52146",
-                      textSize: 10.0,
-                      textColor: AppColors.softtextcolor,
-                      textWeight: FontWeight.w700),
-                  SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CommonWidget().poppinsText(
-                          text: "Mountain Peak",
-                          textSize: 18.0,
-                          textColor: AppColors.blackcolor,
-                          textWeight: FontWeight.w700),
-                      CommonWidget().poppinsText(
-                          text: "₹999",
-                          textSize: 16.0,
-                          textColor: AppColors.blackcolor,
-                          textWeight: FontWeight.w700),
-                    ],
-                  ),
-                  SizedBox(height: 5),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Stitch: ',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w400, fontSize: 12),
-                        ),
-                        TextSpan(
-                          text: '1250',
-                          style:
-                              GoogleFonts.poppins(fontWeight: FontWeight.w500),
-                        ),
-                      ],
+              child: Obx(() => Container(
+                    height: Get.height * 0.5,
+                    width: Get.width * 0.9,
+                    decoration: _boxDecoration,
+                    child: Image.file(
+                      File(design.imagePaths[controller.selectedImageIndex.value]),
+                      fit: BoxFit.cover,
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  CommonWidget().poppinsText(
-                      text:
-                          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                      textSize: 12.0,
-                      textMaxline: 5,
-                      textOverFlow: TextOverflow.ellipsis,
-                      textColor: AppColors.softtextcolor,
-                      textWeight: FontWeight.w400),
-                ],
-              ),
+                  )),
             ),
+            const SizedBox(height: 10),
+            _buildHorizontalGrid(design.imagePaths, controller),
+            const SizedBox(height: 15),
+            _buildDetailCard(design),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalGrid(List<String> images, DesignDetailController controller) {
+    return SizedBox(
+      height: 100,
+      child: GridView.builder(
+        itemCount: images.length,
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+        ),
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => controller.updateIndex(index),
+            child: Container(
+              width: 100,
+              decoration: _boxDecoration,
+              child: Image.file(
+                File(images[index]),
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDetailCard(Design design) {
+    return Container(
+      width: Get.width * 0.9,
+      padding: const EdgeInsets.all(10),
+      decoration: _boxDecoration,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CommonWidget().poppinsText(
+            text: "#SP${design.designNumber}",
+            textSize: 10.0,
+            textColor: AppColors.softtextcolor,
+            textWeight: FontWeight.w700,
+          ),
+          const SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CommonWidget().poppinsText(
+                text: design.designName,
+                textSize: 18.0,
+                textColor: AppColors.blackcolor,
+                textWeight: FontWeight.w700,
+              ),
+              CommonWidget().poppinsText(
+                text: "₹${design.grandTotal}",
+                textSize: 16.0,
+                textColor: AppColors.blackcolor,
+                textWeight: FontWeight.w700,
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Stitch: ',
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w400, fontSize: 12),
+                ),
+                const TextSpan(
+                  text: '1250',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 5),
+          CommonWidget().poppinsText(
+            text:
+                "Lorem Ipsum is simply dummy text of the printing and typesetting industry...",
+            textSize: 12.0,
+            textMaxline: 5,
+            textOverFlow: TextOverflow.ellipsis,
+            textColor: AppColors.softtextcolor,
+            textWeight: FontWeight.w400,
+          ),
+        ],
       ),
     );
   }

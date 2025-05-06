@@ -1,19 +1,21 @@
 import 'package:calculator/helpers/colors.dart';
-import 'package:calculator/helpers/common_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:calculator/models/design_part.dart';
 
 class DesignPartInputRow extends StatelessWidget {
   final String label;
-  final DesignPart part;
+  final TextEditingController stitchesController;
+  final TextEditingController headController;
   final Rx<double> Function() getTotal;
 
-  const DesignPartInputRow(
-      {super.key,
-      required this.label,
-      required this.part,
-      required this.getTotal});
+  const DesignPartInputRow({
+    super.key,
+    required this.label,
+    required this.stitchesController,
+    required this.headController,
+    required this.getTotal,
+  });
+
   String getT() {
     final Rx<double> temp = getTotal();
     return temp.value.toStringAsFixed(2);
@@ -26,36 +28,30 @@ class DesignPartInputRow extends StatelessWidget {
       children: [
         SizedBox(
           width: Get.width * 0.15,
-          child: CommonWidget().poppinsText(text: label),
+          child: Text(label),
         ),
         CommonFrameContainer(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              CommonInputField(controller: part.stitchesController),
-              Container(height: 10, width: 1, color: AppColors.blackcolor),
-              CommonInputField(controller: part.headController),
+              CommonInputField(controller: stitchesController),
+              Container(height: 10, width: 1, color: Colors.black),
+              CommonInputField(controller: headController),
             ],
           ),
         ),
-        CommonWidget().poppinsText(
-          text: "=",
-          textSize: 14.0,
-          textWeight: FontWeight.w400,
-        ),
+        Text("="),
         CommonFrameContainer(
-            width: Get.width * .18,
-            child: Obx(
-              () => CommonWidget().poppinsText(
-                text: getT(),
-                textSize: 16.0,
-                textWeight: FontWeight.w700,
-              ),
-            )),
+          width: Get.width * .18,
+          child: Obx(
+            () => Text(getT()),
+          ),
+        ),
       ],
     );
   }
 }
+
 
 class CommonInputField extends StatelessWidget {
   final TextEditingController controller;

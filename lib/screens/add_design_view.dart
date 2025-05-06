@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:calculator/controllers/design_controller.dart';
+import 'package:calculator/controllers/design_form_controller.dart';
+import 'package:calculator/controllers/nav_controller.dart';
 import 'package:calculator/helpers/colors.dart';
+import 'package:calculator/resources/commons/common_get_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,6 +15,7 @@ import '../helpers/common_widget.dart';
 class AddDesignView extends StatelessWidget {
   AddDesignView({super.key});
   final DesignController design = Get.find<DesignController>();
+  final form = Get.find<DesignFormController>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +36,9 @@ class AddDesignView extends StatelessWidget {
               const SizedBox(height: 20),
               _buildDesignInputCard(),
               const SizedBox(height: 15),
-              _buildUploadButton(design.designImages),
+              _buildUploadButton(form.selectedImages),
               const SizedBox(height: 10),
-              _buildImagePreviewList(design.designImages),
+              _buildImagePreviewList(form.selectedImages),
               const SizedBox(height: 20),
               _buildSummaryCard(),
             ],
@@ -45,60 +49,63 @@ class AddDesignView extends StatelessWidget {
   }
 
   Widget _buildDesignInputCard() {
-  return Center(
-    child: Container(
-      width: Get.width * 0.9,
-      padding: const EdgeInsets.all(10),
-      decoration: _boxDecoration(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Design Number on the left (balanced size)
-          _buildTextFieldColumn("Design No:", design.designNumberController, TextInputType.number, Get.width * 0.25, true),
-          
-          _divider(),
-          
-          // Design Name on the right (balanced size)
-          _buildTextFieldColumn("Design Name:", design.designNameController, TextInputType.text, Get.width * 0.55, false),
-        ],
-      ),
-    ),
-  );
-}
+    return Center(
+      child: Container(
+        width: Get.width * 0.9,
+        padding: const EdgeInsets.all(10),
+        decoration: _boxDecoration(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Design Number on the left (balanced size)
+            _buildTextFieldColumn("Design No:", form.designNumberController,
+                TextInputType.number, Get.width * 0.25, true),
 
-Widget _buildTextFieldColumn(String label, TextEditingController controller, TextInputType keyboardType, double width, bool isSmall) {
-  return SizedBox(
-    width: width,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CommonWidget().poppinsText(
-          text: label,
-          textSize: 12.0,
-          textWeight: FontWeight.w500,
+            _divider(),
+
+            // Design Name on the right (balanced size)
+            _buildTextFieldColumn("Design Name:", form.designNameController,
+                TextInputType.text, Get.width * 0.55, false),
+          ],
         ),
-        TextFormField(
-          controller: controller,
-          style: TextStyle(
-            fontSize: isSmall ?  24:18, // Adjust font size for balance
-            fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildTextFieldColumn(String label, TextEditingController controller,
+      TextInputType keyboardType, double width, bool isSmall) {
+    return SizedBox(
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CommonWidget().poppinsText(
+            text: label,
+            textSize: 12.0,
+            textWeight: FontWeight.w500,
           ),
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: isSmall ? "00" : "Enter Design Name", // Adjust hint text
-            hintStyle: GoogleFonts.poppins(
-              fontSize: isSmall ?  24:18, // Consistent font size adjustments
+          TextFormField(
+            controller: controller,
+            style: TextStyle(
+              fontSize: isSmall ? 24 : 18, // Adjust font size for balance
               fontWeight: FontWeight.bold,
-              color: AppColors.softtextcolor.withOpacity(.5),
+            ),
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText:
+                  isSmall ? "00" : "Enter Design Name", // Adjust hint text
+              hintStyle: GoogleFonts.poppins(
+                fontSize: isSmall ? 24 : 18, // Consistent font size adjustments
+                fontWeight: FontWeight.bold,
+                color: AppColors.softtextcolor.withOpacity(.5),
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _divider() {
     return Container(
@@ -168,11 +175,11 @@ Widget _buildTextFieldColumn(String label, TextEditingController controller, Tex
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 15),
-          itemCount: design.designImages.length +
-              (design.designImages.length < 5 ? 1 : 0),
+          itemCount: form.selectedImages.length +
+              (form.selectedImages.length < 5 ? 1 : 0),
           separatorBuilder: (_, __) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
-            if (showAddIcon && index == design.designImages.length) {
+            if (showAddIcon && index == form.selectedImages.length) {
               // Add icon goes to the end
               return GestureDetector(
                 onTap: () => pickImage(images),
@@ -189,7 +196,7 @@ Widget _buildTextFieldColumn(String label, TextEditingController controller, Tex
               );
             } else {
               // Show selected images first
-              final imagePath = design.designImages[index];
+              final imagePath = form.selectedImages[index];
               return Stack(
                 children: [
                   Container(
@@ -252,7 +259,18 @@ Widget _buildTextFieldColumn(String label, TextEditingController controller, Tex
                 _actionButton("SAVE", () {
                   // Save logic
                   // you can call a method from controller here
-                  design.updateTotal(); // example
+                  if (form.designNumberController.text != '' &&
+                      form.selectedImages.isNotEmpty) {
+                    design.updateTotal();
+                    print("????????????????????");
+                    print(form.selectedImages);
+                    design.saveDesign();
+                    CommonSnackbar.customSuccessSnackbar("Save Successfully");
+                    Get.back();
+                    Get.put(NavController()).changeTab(0);
+                  } else {
+                    CommonSnackbar.errorSnackbar();
+                  }
                 }, color: AppColors.redcolor, textColor: AppColors.whitecolor),
               ],
             ),

@@ -1,21 +1,18 @@
+import 'package:calculator/controllers/nav_controller.dart'; // <- Create this file
 import 'package:calculator/helpers/colors.dart';
 import 'package:calculator/helpers/images.dart';
-import 'package:flutter/material.dart';
 import 'package:calculator/screens/design_listview.dart';
 import 'package:calculator/screens/home_view.dart';
 import 'package:calculator/screens/setting_view.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart'; // Your AppImage.icon path
+import 'package:get/get.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 1;
+  final navController = Get.put(NavController());
 
   final List<Widget> _pages = [
     DesignListview(),
@@ -29,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
       icon: SvgPicture.asset("${AppImage.svgIconPath}list_a.svg"),
       inactiveIcon: SvgPicture.asset("${AppImage.svgIconPath}list.svg"),
       activeForegroundColor: AppColors.redcolor,
-      inactiveBackgroundColor: Colors.white,
     ),
     ItemConfig(
       title: "Home",
@@ -45,60 +41,57 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(_items.length, (index) {
-            final item = _items[index];
-            final isSelected = index == _selectedIndex;
+    return Obx(() {
+      final index = navController.selectedIndex.value;
 
-            return GestureDetector(
-              onTap: () => _onItemTapped(index),
-              child: SizedBox(
-                width: 60,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Top line for active tab
-                    Container(
-                      height: 3,
-                      width: 30,
-                      color: isSelected
-                          ? item.activeForegroundColor
-                          : Colors.transparent,
-                      margin: const EdgeInsets.only(bottom: 4),
-                    ),
-                    isSelected ? item.icon : item.inactiveIcon,
-                    const SizedBox(height: 4),
-                    Text(
-                      item.title ?? "",
-                      style: TextStyle(
+      return Scaffold(
+        body: _pages[index],
+        bottomNavigationBar: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_items.length, (i) {
+              final item = _items[i];
+              final isSelected = i == index;
+
+              return GestureDetector(
+                onTap: () => navController.changeTab(i),
+                child: SizedBox(
+                  width: 60,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 3,
+                        width: 30,
                         color: isSelected
                             ? item.activeForegroundColor
-                            : Colors.grey,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                            : Colors.transparent,
+                        margin: const EdgeInsets.only(bottom: 4),
                       ),
-                    ),
-                  ],
+                      isSelected ? item.icon : item.inactiveIcon,
+                      const SizedBox(height: 4),
+                      Text(
+                        item.title ?? "",
+                        style: TextStyle(
+                          color: isSelected
+                              ? item.activeForegroundColor
+                              : Colors.grey,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

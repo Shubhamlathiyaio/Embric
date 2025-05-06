@@ -1,0 +1,141 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2003503685854431101",
+      "lastPropertyId": "9:3704514008621011497",
+      "name": "DesignEntity",
+      "properties": [
+        {
+          "id": "1:2456210507189681352",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5950309875592720964",
+          "name": "designNumber",
+          "type": 9
+        },
+        {
+          "id": "3:702319647458097569",
+          "name": "designName",
+          "type": 9
+        },
+        {
+          "id": "4:4941378696710555081",
+          "name": "stitchRate",
+          "type": 9
+        },
+        {
+          "id": "5:1577199825799579417",
+          "name": "addOnPrice",
+          "type": 9
+        },
+        {
+          "id": "6:4767826865809547358",
+          "name": "cPalluId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "1:4872876404110901902",
+          "relationTarget": "DesignPartEntity"
+        },
+        {
+          "id": "7:7519586139030791717",
+          "name": "palluId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "2:8355223796387555420",
+          "relationTarget": "DesignPartEntity"
+        },
+        {
+          "id": "8:8595584897157839105",
+          "name": "stkId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "3:1436189878938601455",
+          "relationTarget": "DesignPartEntity"
+        },
+        {
+          "id": "9:3704514008621011497",
+          "name": "blzId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "4:8718065982683143731",
+          "relationTarget": "DesignPartEntity"
+        }
+      ],
+      "relations": [
+        {
+          "id": "1:1404209470053946615",
+          "name": "imagePaths",
+          "targetId": "3:1897071112733444792"
+        }
+      ]
+    },
+    {
+      "id": "2:7610413272613606798",
+      "lastPropertyId": "6:2915252030399241823",
+      "name": "DesignPartEntity",
+      "properties": [
+        {
+          "id": "1:726737845000022133",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "3:3244326687742896444",
+          "name": "head",
+          "type": 9
+        },
+        {
+          "id": "4:4044902519210662388",
+          "name": "stitches",
+          "type": 9
+        },
+        {
+          "id": "6:2915252030399241823",
+          "name": "type",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:1897071112733444792",
+      "lastPropertyId": "2:7756756602033095203",
+      "name": "ImagePathEntity",
+      "properties": [
+        {
+          "id": "1:8375430908752021271",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7756756602033095203",
+          "name": "path",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "3:1897071112733444792",
+  "lastIndexId": "4:8718065982683143731",
+  "lastRelationId": "1:1404209470053946615",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [
+    6203518599342878408,
+    3100364961566376597
+  ],
+  "retiredRelationUids": [],
+  "version": 1
+}

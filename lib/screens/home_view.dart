@@ -1,10 +1,11 @@
 import 'package:calculator/controllers/design_controller.dart';
+import 'package:calculator/controllers/design_form_controller.dart';
+import 'package:calculator/helpers/colors.dart';
+import 'package:calculator/helpers/common_widget.dart';
 import 'package:calculator/screens/home_common/design_part_input.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../helpers/colors.dart';
-import '../helpers/common_widget.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -15,6 +16,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final design = Get.find<DesignController>();
+  final form = Get.find<DesignFormController>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class _HomeViewState extends State<HomeView> {
               ),
               commonBigField(
                   label: "Stitch Rate",
-                  controller: design.stitchRateController,
+                  controller: form.stitchRateController,
                   onChanged: design.update),
               Center(
                 child: SizedBox(
@@ -44,21 +46,26 @@ class _HomeViewState extends State<HomeView> {
                   child: Column(
                     spacing: 2.5,
                     children: [
+                      _headRow(),
                       DesignPartInputRow(
                           label: "C-Pallu",
-                          part: design.cPallu,
+                          headController: form.cPalluHead,
+                          stitchesController: form.cPalluStitches,
                           getTotal: () => design.cPalluTotal),
                       DesignPartInputRow(
                           label: "Pallu",
-                          part: design.pallu,
+                          headController: form.palluHead,
+                          stitchesController: form.palluStitches,
                           getTotal: () => design.palluTotal),
                       DesignPartInputRow(
                           label: "Skt",
-                          part: design.stk,
+                          headController: form.stkHead,
+                          stitchesController: form.stkStitches,
                           getTotal: () => design.stkTotal),
                       DesignPartInputRow(
                           label: "Blz",
-                          part: design.blz,
+                          headController: form.blzHead,
+                          stitchesController: form.blzStitches,
                           getTotal: () => design.blzTotal),
                     ],
                   ),
@@ -66,7 +73,7 @@ class _HomeViewState extends State<HomeView> {
               ),
               commonBigField(
                   label: "Add on Prices",
-                  controller: design.addOnPriceController,
+                  controller: form.addOnPriceController,
                   onChanged: design.update),
             ],
           ),
@@ -81,6 +88,40 @@ class _HomeViewState extends State<HomeView> {
           onSave: () => design.validator(),
         ),
       ),
+    );
+  }
+
+  Widget _headRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        SizedBox(
+          width: Get.width * 0.12,
+          child: CommonWidget().poppinsText(
+              text: "Name", textSize: 14.0, textWeight: FontWeight.w400),
+        ),
+        SizedBox(
+          width: Get.width * 0.4,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CommonWidget().poppinsText(
+                  text: "Stitches",
+                  textSize: 14.0,
+                  textWeight: FontWeight.w400),
+              CommonWidget().poppinsText(
+                  text: "Head", textSize: 14.0, textWeight: FontWeight.w400),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: Get.width * 0.18,
+          child: Center(
+            child: CommonWidget().poppinsText(
+                text: "Total", textSize: 14.0, textWeight: FontWeight.w400),
+          ),
+        ),
+      ],
     );
   }
 
