@@ -58,22 +58,24 @@ class DesignDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalGrid(List<String> images, DesignDetailController controller) {
-    return SizedBox(
-      height: 100,
-      child: GridView.builder(
-        itemCount: images.length,
-        scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-        ),
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => controller.updateIndex(index),
+ Widget _buildHorizontalGrid(List<String> images, DesignDetailController controller) {
+  return SizedBox(
+    height: 100,
+    child: GridView.builder(
+      itemCount: images.length,
+      scrollDirection: Axis.horizontal,
+      physics: const ClampingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 1,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () => controller.updateIndex(index),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10), // 👈 Rounded corners
             child: Container(
               width: 100,
               decoration: _boxDecoration,
@@ -82,11 +84,12 @@ class DesignDetailView extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
 
   Widget _buildDetailCard(Design design) {
     return Container(
@@ -113,7 +116,7 @@ class DesignDetailView extends StatelessWidget {
                 textWeight: FontWeight.w700,
               ),
               CommonWidget().poppinsText(
-                text: "₹${design.grandTotal}",
+                text: "₹${design.grandTotal.toStringAsFixed(2)}",
                 textSize: 16.0,
                 textColor: AppColors.blackcolor,
                 textWeight: FontWeight.w700,

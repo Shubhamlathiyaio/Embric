@@ -73,79 +73,78 @@ class DesignListview extends StatelessWidget {
   }
 
   Widget _designItem(DesignEntity design) {
-    final designModel = entityToDesign(design);
-    print(designModel.imagePaths);
+  final designModel = entityToDesign(design);
+  print(designModel.imagePaths);
 
-    return Container(
-      width: Get.width,
-      margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.whitecolor,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.softtextcolor.withOpacity(0.2),
-            blurRadius: 5,
+  return Container(
+    width: Get.width,
+    margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 15),
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: AppColors.whitecolor,
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.softtextcolor.withOpacity(0.2),
+          blurRadius: 5,
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        SizedBox(
+          height: 80,
+          width: Get.width * 0.2,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10), // 👈 Rounded corners
+            child: (designModel.imagePaths.isNotEmpty &&
+                    File(designModel.imagePaths[0]).existsSync())
+                ? Image.file(
+                    File(designModel.imagePaths[0]),
+                    fit: BoxFit.cover,
+                  )
+                : Image.network(
+                    "https://i.pinimg.com/474x/ee/77/7f/ee777fdb78ad9d524d67f8f589d818e3.jpg",
+                    fit: BoxFit.cover,
+                  ),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            height: 80,
-            width: Get.width * 0.2,
-            child: SizedBox(
-              height: 80,
-              width: Get.width * 0.2,
-              child: (designModel.imagePaths.isNotEmpty &&
-                      File(designModel.imagePaths[0]).existsSync())
-                  ? Image.file(
-                      File(designModel.imagePaths[0]),
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-              "https://i.pinimg.com/474x/ee/77/7f/ee777fdb78ad9d524d67f8f589d818e3.jpg",
-              fit: BoxFit.cover,
-            ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Column(
-            children: [
-              SizedBox(
-                width: Get.width * 0.65,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonWidget().poppinsText(
-                      text: design.designName.isNotEmpty
-                          ? design.designName
-                          : "Rimzim",
-                      textSize: 18.0,
-                      textWeight: FontWeight.w700,
-                    ),
-                    CommonWidget().poppinsText(
-                      text: designModel.grandTotal.toStringAsFixed(0),
-                      textSize: 15.0,
-                      textWeight: FontWeight.w700,
-                    ),
-                    CommonWidget().poppinsText(
-                      text:
-                          "Lorem ipsum dolor sit amet consectetur. Lacus rutrum egestas posuere pellentesque amet lacinia. Ut massa nibh sit aliquet ut nunc leo.",
-                      textSize: 12.0,
-                      textMaxline: 2,
-                      textOverFlow: TextOverflow.ellipsis,
-                      textWeight: FontWeight.w700,
-                      textColor: AppColors.softtextcolor,
-                    ),
-                  ],
-                ),
+        ),
+        const SizedBox(width: 5),
+        Column(
+          children: [
+            SizedBox(
+              width: Get.width * 0.65,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CommonWidget().poppinsText(
+                    text: design.designName.isNotEmpty
+                        ? design.designName
+                        : "Rimzim",
+                    textSize: 18.0,
+                    textWeight: FontWeight.w700,
+                  ),
+                  CommonWidget().poppinsText(
+                    text: designModel.grandTotal.toStringAsFixed(2),
+                    textSize: 15.0,
+                    textWeight: FontWeight.w700,
+                  ),
+                  CommonWidget().poppinsText(
+                    text:
+                        "Lorem ipsum dolor sit amet consectetur. Lacus rutrum egestas posuere pellentesque amet lacinia. Ut massa nibh sit aliquet ut nunc leo.",
+                    textSize: 12.0,
+                    textMaxline: 2,
+                    textOverFlow: TextOverflow.ellipsis,
+                    textWeight: FontWeight.w700,
+                    textColor: AppColors.softtextcolor,
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 }

@@ -8,24 +8,29 @@ import '../controllers/lang_controller.dart';
 import 'app_constant.dart';
 
 class CommonWidget {
-  Widget poppinsText(
-      {text,
-      textMaxline,
-      textOverFlow,
-      textAlign,
-      textColor,
-      textSize,
-      textWeight}) {
-    return Text(text,
-        maxLines: textMaxline,
-        overflow: textOverFlow,
-        textAlign: textAlign,
-        style: GoogleFonts.poppins(
-          color: textColor,
-          fontSize: textSize,
-          fontWeight: textWeight,
-        ));
-  }
+  Widget poppinsText({
+  required String text,
+  int? textMaxline,
+  TextOverflow? textOverFlow,
+  TextAlign? textAlign,
+  Color? textColor,
+  double? textSize,
+  FontWeight? textWeight,
+}) {
+  return Text(
+    text,
+    maxLines: textMaxline,
+    overflow: textOverFlow,
+    textAlign: textAlign,
+    style: TextStyle(
+      fontFamily: 'Poppins',
+      color: textColor,
+      fontSize: textSize,
+      fontWeight: textWeight,
+    ),
+  );
+}
+
 
   Future<bool?> commontoast({msg}) {
     return Fluttertoast.showToast(
