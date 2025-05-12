@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:calculator/controllers/design_details_contrller.dart';
 import 'package:calculator/helpers/colors.dart';
 import 'package:calculator/models/design.dart';
-import 'package:calculator/models/design_entity.dart';
+import 'package:calculator/models/image_path_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,14 +28,41 @@ class DesignDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Design design = Get.arguments;
+    print("dek0000000000000000000 = ${design.imagePaths.length}");
     final DesignDetailController controller = Get.put(DesignDetailController());
 
     return Scaffold(
       backgroundColor: AppColors.bgcolor,
-      appBar: AppBar(backgroundColor: AppColors.bgcolor),
+      appBar: AppBar(
+        backgroundColor: AppColors.bgcolor,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.toNamed('/cal', arguments: design);
+              },
+              icon: Icon(Icons.edit)),
+          SizedBox(width: 10)
+        ],
+      ),
       body: SingleChildScrollView(
-        child: Column(
+        child: (Column(
           children: [
+            Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "#",
+                      style: TextStyle(fontSize: 36, color: Colors.grey),
+                    ),
+                    CommonWidget().poppinsText(
+                        text: design.designNumber,
+                        textWeight: FontWeight.bold,
+                        textSize: 36),
+                  ],
+                )),
             const SizedBox(height: 10),
             Center(
               child: Obx(() => Container(
@@ -43,7 +70,8 @@ class DesignDetailView extends StatelessWidget {
                     width: Get.width * 0.9,
                     decoration: _boxDecoration,
                     child: Image.file(
-                      File(design.imagePaths[controller.selectedImageIndex.value]),
+                      File(design
+                          .imagePaths[controller.selectedImageIndex.value].path),
                       fit: BoxFit.cover,
                     ),
                   )),
@@ -53,43 +81,44 @@ class DesignDetailView extends StatelessWidget {
             const SizedBox(height: 15),
             _buildDetailCard(design),
           ],
-        ),
+        )),
       ),
     );
   }
 
- Widget _buildHorizontalGrid(List<String> images, DesignDetailController controller) {
-  return SizedBox(
-    height: 100,
-    child: GridView.builder(
-      itemCount: images.length,
-      scrollDirection: Axis.horizontal,
-      physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 1,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-      ),
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () => controller.updateIndex(index),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10), // 👈 Rounded corners
-            child: Container(
-              width: 100,
-              decoration: _boxDecoration,
-              child: Image.file(
-                File(images[index]),
-                fit: BoxFit.cover,
+  Widget _buildHorizontalGrid(
+      List<ImagePathEntity> images, DesignDetailController controller) {
+    return SizedBox(
+      height: 100,
+      child: GridView.builder(
+        itemCount: images.length,
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+        ),
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => controller.updateIndex(index),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10), // 👈 Rounded corners
+              child: Container(
+                width: 100,
+                decoration: _boxDecoration,
+                child: Image.file(
+                  File(images[index].path),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-        );
-      },
-    ),
-  );
-}
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildDetailCard(Design design) {
     return Container(

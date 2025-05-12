@@ -1,8 +1,11 @@
 // lib/models/design.dart
 
+import 'package:calculator/models/image_path_entity.dart';
+
 import 'design_part.dart';
 
 class Design {
+  int? id;
   final String designNumber;
   final String designName;
   final double stitchRate;
@@ -11,11 +14,12 @@ class Design {
   final DesignPart pallu;
   final DesignPart stk;
   final DesignPart blz;
-  final List<String> imagePaths;
+  final List<ImagePathEntity> imagePaths;
 
   Design({
-    this.designNumber="",
-    this.designName="",
+    this.id,
+    this.designNumber = "",
+    this.designName = "",
     required this.stitchRate,
     required this.addOnPrice,
     required this.cPallu,
@@ -32,4 +36,21 @@ class Design {
 
   double get grandTotal =>
       cPalluTotal + palluTotal + stkTotal + blzTotal + addOnPrice;
+
+  Design copy() => Design(
+    id :id,
+        cPallu: cPallu.copy(),
+        pallu: pallu.copy(),
+        stk: stk.copy(),
+        blz: blz.copy(),
+        stitchRate: stitchRate,
+        addOnPrice: addOnPrice,
+        designName: designName,
+        designNumber: designNumber,
+        imagePaths: List.from(imagePaths),
+      );
+  @override
+  String toString() {
+    return 'ID = $id Name = $designName,';
+  }
 }

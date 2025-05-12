@@ -4,6 +4,7 @@ import 'package:calculator/controllers/design_form_controller.dart';
 import 'package:calculator/controllers/nav_controller.dart';
 import 'package:calculator/helpers/colors.dart';
 import 'package:calculator/resources/commons/common_get_snackbar.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,6 +20,7 @@ class AddDesignView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("${form.selectedImages}");
     return Scaffold(
       backgroundColor: AppColors.bgcolor,
       appBar: AppBar(
@@ -36,9 +38,9 @@ class AddDesignView extends StatelessWidget {
               const SizedBox(height: 20),
               _buildDesignInputCard(),
               const SizedBox(height: 15),
-              _buildUploadButton(form.selectedImages),
+              _buildUploadButton(),
               const SizedBox(height: 10),
-              _buildImagePreviewList(form.selectedImages),
+              _buildImagePreviewList(),
               const SizedBox(height: 20),
               _buildSummaryCard(),
             ],
@@ -60,9 +62,7 @@ class AddDesignView extends StatelessWidget {
             // Design Number on the left (balanced size)
             _buildTextFieldColumn("Design No:", form.designNumberController,
                 TextInputType.number, Get.width * 0.25, true),
-
             _divider(),
-
             // Design Name on the right (balanced size)
             _buildTextFieldColumn("Design Name:", form.designNameController,
                 TextInputType.text, Get.width * 0.55, false),
@@ -115,10 +115,10 @@ class AddDesignView extends StatelessWidget {
     );
   }
 
-  Widget _buildUploadButton(RxList<String> images) {
+  Widget _buildUploadButton() {
     return GestureDetector(
-      onTap: () => images.length < 5
-          ? pickImage(images)
+      onTap: () => form.selectedImages.length < 5
+          ? pickImage(form.selectedImages)
           : Get.snackbar(
               backgroundColor: Colors.black54,
               barBlur: 8,
@@ -148,26 +148,42 @@ class AddDesignView extends StatelessWidget {
     );
   }
 
-  Future<void> pickImage(RxList<String> imageList) async {
-    Permission permission =
-        Platform.isIOS ? Permission.photos : Permission.storage;
-    var status = await permission.request();
+  Future<void> pickImage(List<String> imageList) async {
+    final ImagePicker picker = ImagePicker();
 
-    if (status.isGranted) {
-      final XFile? pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (pickedFile != null && imageList.length < 5) {
-        imageList.add(pickedFile.path);
+    if (Platform.isAndroid) {
+      final sdkInt = await DeviceInfoPlugin()
+          .androidInfo
+          .then((info) => info.version.sdkInt);
+
+      if (sdkInt < 33) {
+        // Android < 13 needs storage permission
+        var status = await Permission.storage.request();
+        if (!status.isGranted) {
+          openAppSettings();
+          return;
+        }
       }
+      // Android >= 13 does NOT need storage permission to pick image from gallery
     } else {
-      print("Permission denied");
-      openAppSettings();
+      // iOS needs photo permission
+      var status = await Permission.photos.request();
+      if (!status.isGranted) {
+        openAppSettings();
+        return;
+      }
+    }
+
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null && imageList.length < 5) {
+      imageList.add(pickedFile.path);
     }
   }
 
-  Widget _buildImagePreviewList(RxList<String> images) {
+  Widget _buildImagePreviewList() {
     // max 4 images + 1 add icon
-    final showAddIcon = images.length < 5;
+    final showAddIcon = form.selectedImages.length < 5;
 
     return Obx(
       () => SizedBox(
@@ -182,7 +198,7 @@ class AddDesignView extends StatelessWidget {
             if (showAddIcon && index == form.selectedImages.length) {
               // Add icon goes to the end
               return GestureDetector(
-                onTap: () => pickImage(images),
+                onTap: () => pickImage(form.selectedImages),
                 child: Container(
                   width: 75,
                   decoration: BoxDecoration(
@@ -213,7 +229,7 @@ class AddDesignView extends StatelessWidget {
                     top: 4,
                     right: 4,
                     child: GestureDetector(
-                      onTap: () => images.removeAt(index),
+                      onTap: () => form.selectedImages.removeAt(index),
                       child: CircleAvatar(
                         radius: 10,
                         backgroundColor: Colors.black.withOpacity(0.5),
@@ -256,22 +272,34 @@ class AddDesignView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _actionButton("CANCEL", () => Get.back()),
-                _actionButton("SAVE", () {
-                  // Save logic
-                  // you can call a method from controller here
-                  if (form.designNumberController.text != '' &&
-                      form.selectedImages.isNotEmpty) {
-                    design.updateTotal();
-                    print("????????????????????");
-                    print(form.selectedImages);
-                    design.saveDesign();
-                    CommonSnackbar.customSuccessSnackbar("Save Successfully");
-                    Get.back();
-                    Get.put(NavController()).changeTab(0);
-                  } else {
-                    CommonSnackbar.errorSnackbar();
-                  }
-                }, color: AppColors.redcolor, textColor: AppColors.whitecolor),
+                Obx(
+                  () => _actionButton(
+                    design.isEdit.value ? "UPDATE" : "SAVE",
+                    () {
+                      if (form.designNumberController.text != '' &&
+                          form.selectedImages.isNotEmpty) {
+                        design.updateTotal();
+                        design.isEdit.value
+                            ? design.updateDesign()
+                            : design.saveDesign();
+                        Get.back();
+                        Get.back();
+                        Get.back();
+
+                        design.isEdit.value
+                            ? CommonSnackbar.customSuccessSnackbar(
+                                "Updated Successfully")
+                            : CommonSnackbar.customSuccessSnackbar(
+                                "Save Successfully");
+                        Get.find<NavController>().selectedIndex.value = 0;
+                      } else {
+                        CommonSnackbar.errorSnackbar();
+                      }
+                    },
+                    color: AppColors.redcolor,
+                    textColor: AppColors.whitecolor,
+                  ),
+                )
               ],
             ),
           ],

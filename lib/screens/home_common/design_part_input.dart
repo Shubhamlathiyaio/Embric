@@ -1,4 +1,6 @@
+import 'package:calculator/controllers/design_form_controller.dart';
 import 'package:calculator/helpers/colors.dart';
+import 'package:calculator/helpers/common_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,8 +19,11 @@ class DesignPartInputRow extends StatelessWidget {
   });
 
   String getT() {
-    final Rx<double> temp = getTotal();
-    return temp.value.toStringAsFixed(2);
+    final Rx<double> total = getTotal();
+    if(total.value==0)return '0';
+    String sTotal = total.toString();
+    if (sTotal.contains('.')) if (sTotal.split('.')[1].length > 2) return total.value.toStringAsFixed(2);    
+    return total.value.toString();
   }
 
   @override
@@ -34,9 +39,16 @@ class DesignPartInputRow extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              CommonInputField(controller: stitchesController),
+              CommonInputField(
+                controller: stitchesController,
+                onChange: (value) => stitchesController.text =
+                    DesignFormController().sanitizeDoubleInput(value),
+              ),
               Container(height: 10, width: 1, color: Colors.black),
-              CommonInputField(controller: headController),
+              CommonInputField(
+                  controller: headController,
+                  onChange: (value) => headController.text =
+                      DesignFormController().sanitizeDoubleInput(value)),
             ],
           ),
         ),
@@ -44,7 +56,8 @@ class DesignPartInputRow extends StatelessWidget {
         CommonFrameContainer(
           width: Get.width * .18,
           child: Obx(
-            () => Text(getT()),
+            () => CommonWidget()
+                .poppinsText(text: getT(), textWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -52,13 +65,14 @@ class DesignPartInputRow extends StatelessWidget {
   }
 }
 
-
 class CommonInputField extends StatelessWidget {
   final TextEditingController controller;
+  final Function onChange;
 
   const CommonInputField({
     super.key,
     required this.controller,
+    required this.onChange,
   });
 
   @override
@@ -68,6 +82,7 @@ class CommonInputField extends StatelessWidget {
       height: 50,
       child: Center(
         child: TextFormField(
+          onChanged: (value) => onChange(value),
           keyboardType: TextInputType.number,
           controller: controller,
           textAlign: TextAlign.center,

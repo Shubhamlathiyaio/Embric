@@ -45,6 +45,8 @@ dependencies:
   objectbox: ^4.2.0
   objectbox_flutter_libs: ^4.2.0
   json_annotation: ^4.9.0
+  device_info_plus: ^11.4.0
+  flutter_slidable: ^4.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:calculator/models/design_entity.dart';
 import 'package:calculator/models/design_part_entity.dart';
+import 'package:calculator/models/image_path_entity.dart';
 import 'package:get/get.dart';
 
 import 'design_form_controller.dart';
@@ -16,7 +17,7 @@ class DesignDataController extends GetxController {
     }
 
     // 1. Create DesignEntity
-    final design = DesignEntity(
+    final designEntity = DesignEntity(
       designNumber: formCtrl.designNumberController.text,
       designName: formCtrl.designNameController.text,
       stitchRate: formCtrl.stitchRateController.text,
@@ -26,34 +27,36 @@ class DesignDataController extends GetxController {
     // 2. Create and add parts
     final cPallu = DesignPartEntity(
       type: "cPallu",
-      head: formCtrl.cPalluHead.text,
-      stitches: formCtrl.cPalluStitches.text,
+      head: formCtrl.cPalluHeadController.text,
+      stitches: formCtrl.cPalluStitchesController.text,
     );
 
     final pallu = DesignPartEntity(
       type: "pallu",
-      head: formCtrl.palluHead.text,
-      stitches: formCtrl.palluStitches.text,
+      head: formCtrl.palluHeadController.text,
+      stitches: formCtrl.palluStitchesController.text,
     );
 
     final stk = DesignPartEntity(
       type: "stk",
-      head: formCtrl.stkHead.text,
-      stitches: formCtrl.stkStitches.text,
+      head: formCtrl.stkHeadController.text,
+      stitches: formCtrl.stkStitchesController.text,
     );
 
     final blz = DesignPartEntity(
       type: "blz",
-      head: formCtrl.blzHead.text,
-      stitches: formCtrl.blzStitches.text,
+      head: formCtrl.blzHeadController.text,
+      stitches: formCtrl.blzStitchesController.text,
     );
 
-    design.addParts(cPallu, pallu, stk, blz);
-
+    designEntity.addParts(cPallu, pallu, stk, blz);
+    final images = [for(String e in formCtrl.selectedImages) ImagePathEntity(path: e)];
+    
+    designEntity.addImagePaths(images);
     // 3. Add images
-    design.addImagePaths(formCtrl.selectedImages);
+    // storageCtrl.removeImagePathsFromDB(design);
 
     // 4. Save to ObjectBox
-    storageCtrl.saveDesign(design);
+    storageCtrl.saveDesign(designEntity);
   }
 }

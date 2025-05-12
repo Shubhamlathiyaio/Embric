@@ -1,4 +1,5 @@
 // lib/mappers/design_mapper.dart
+import 'package:calculator/models/image_path_entity.dart';
 
 import '../models/design.dart';
 import '../models/design_entity.dart';
@@ -21,7 +22,7 @@ DesignEntity designToEntity(Design design) {
     partToEntity(design.blz),
   );
 
-  entity.addImagePaths(design.imagePaths);
+  entity.addImagePaths([for(ImagePathEntity e in design.imagePaths) ImagePathEntity(path: e.path)]);
   return entity;
 }
 
@@ -32,6 +33,7 @@ DesignPart _mapPart(DesignPartEntity? entity, DesignPartType type) {
 /// Maps [DesignEntity] to [Design]
 Design entityToDesign(DesignEntity entity) {
   return Design(
+    id :entity.id,
     designNumber: entity.designNumber,
     designName: entity.designName,
     stitchRate: double.tryParse(entity.stitchRate) ?? 0,
@@ -40,7 +42,7 @@ Design entityToDesign(DesignEntity entity) {
     pallu: _mapPart(entity.pallu.target, DesignPartType.pallu),
     stk: _mapPart(entity.stk.target, DesignPartType.stk),
     blz: _mapPart(entity.blz.target, DesignPartType.blz),
-    imagePaths: entity.imagePaths.map((e) => e.path).toList(),
+    imagePaths: entity.imagePaths,
   );
 }
 
@@ -57,7 +59,6 @@ String _orString(double value) => value == 0 ? '' : value.toString();
 
 /// Maps [DesignPartEntity] to [DesignPart]
 DesignPart entityToPart(DesignPartEntity entity) {
-  print(DesignPartType.values.byName(entity.type));
   return DesignPart(
     type: DesignPartType.values.byName(entity.type),
     head: double.tryParse(entity.head) ?? 0,

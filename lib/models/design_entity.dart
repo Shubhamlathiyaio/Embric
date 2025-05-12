@@ -1,4 +1,4 @@
-import 'package:objectbox/objectbox.dart';
+import 'package:calculator/objectbox.g.dart';
 import 'design_part_entity.dart';
 import 'image_path_entity.dart';
 
@@ -11,6 +11,7 @@ class DesignEntity {
   String stitchRate;
   String addOnPrice;
 
+  @Backlink()
   final imagePaths = ToMany<ImagePathEntity>();
   final cPallu = ToOne<DesignPartEntity>();
   final pallu = ToOne<DesignPartEntity>();
@@ -18,6 +19,7 @@ class DesignEntity {
   final blz = ToOne<DesignPartEntity>();
 
   DesignEntity({
+    this.id = 0,
     required this.designNumber,
     required this.designName,
     required this.stitchRate,
@@ -25,20 +27,21 @@ class DesignEntity {
   });
 
   void addParts(
-  DesignPartEntity cPalluPart,
-  DesignPartEntity palluPart,
-  DesignPartEntity stkPart,
-  DesignPartEntity blzPart,
-) {
-  cPallu.target = cPalluPart;
-  pallu.target = palluPart;
-  stk.target = stkPart;
-  blz.target = blzPart;
-}
+    DesignPartEntity cPalluPart,
+    DesignPartEntity palluPart,
+    DesignPartEntity stkPart,
+    DesignPartEntity blzPart,
+  ) {
+    cPallu.target = cPalluPart;
+    pallu.target = palluPart;
+    stk.target = stkPart;
+    blz.target = blzPart;
+  }
 
-
-  void addImagePaths(List<String> paths) {
+  void addImagePaths(List<ImagePathEntity> paths) {
     imagePaths.clear();
-    imagePaths.addAll(paths.map((path) => ImagePathEntity(path: path)));
+    for (var path in paths) {
+      imagePaths.add(path);
+    }
   }
 }

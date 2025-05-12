@@ -58,7 +58,7 @@ class CommonSnackbar {
 
   static customSuccessSnackbar(String label) => show(
         title: label,
-        message: "Invoice $label successfully",
+        message: "Design $label successfully",
         icon: Icon(
           Icons.check_circle,
           color: Colors.green,

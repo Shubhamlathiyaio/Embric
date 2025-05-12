@@ -23,3 +23,13 @@ class DesignPart {
     return h * s * stitchRate / 1000;
   }
 }
+
+extension DesignPartCopy on DesignPart {
+  DesignPart copy() {
+    return DesignPart(
+      type: type,
+      stitches: stitches,
+      head: head,
+    );
+  }
+}

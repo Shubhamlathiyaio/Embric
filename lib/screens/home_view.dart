@@ -2,24 +2,28 @@ import 'package:calculator/controllers/design_controller.dart';
 import 'package:calculator/controllers/design_form_controller.dart';
 import 'package:calculator/helpers/colors.dart';
 import 'package:calculator/helpers/common_widget.dart';
+import 'package:calculator/helpers/defaults.dart';
+import 'package:calculator/models/design.dart';
+import 'package:calculator/screens/home_common/big_text_field.dart';
 import 'package:calculator/screens/home_common/design_part_input.dart';
+import 'package:calculator/screens/home_common/header_row.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
-
-  @override
-  State<HomeView> createState() => _HomeViewState();
-}
-
-class _HomeViewState extends State<HomeView> {
-  final design = Get.find<DesignController>();
+class HomeView extends StatelessWidget {
+  final designCtr = Get.find<DesignController>();
   final form = Get.find<DesignFormController>();
+  HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Design? design = Get.arguments;
+    if (design != null) {
+      designCtr.setDesign(design);
+    } else {
+      designCtr.isEdit.value = false;
+      designCtr.design.value = getDefaultDesign();
+    }
     return Scaffold(
       backgroundColor: AppColors.bgcolor,
       body: SafeArea(
@@ -36,45 +40,42 @@ class _HomeViewState extends State<HomeView> {
                     textColor: AppColors.redcolor,
                     textWeight: FontWeight.w700),
               ),
-              commonBigField(
-                  label: "Stitch Rate",
-                  controller: form.stitchRateController,
-                  onChanged: design.update),
+              BigTextField(
+                  label: "Stitch Rate", controller: form.stitchRateController),
               Center(
                 child: SizedBox(
                   width: Get.width * 0.9,
                   child: Column(
                     spacing: 2.5,
                     children: [
-                      _headRow(),
+                      HeaderRow(), // HeaderRow here
                       DesignPartInputRow(
                           label: "C-Pallu",
-                          headController: form.cPalluHead,
-                          stitchesController: form.cPalluStitches,
-                          getTotal: () => design.cPalluTotal),
+                          headController: form.cPalluHeadController,
+                          stitchesController: form.cPalluStitchesController,
+                          getTotal: () => designCtr.cPalluTotal),
                       DesignPartInputRow(
                           label: "Pallu",
-                          headController: form.palluHead,
-                          stitchesController: form.palluStitches,
-                          getTotal: () => design.palluTotal),
+                          headController: form.palluHeadController,
+                          stitchesController: form.palluStitchesController,
+                          getTotal: () => designCtr.palluTotal),
                       DesignPartInputRow(
                           label: "Skt",
-                          headController: form.stkHead,
-                          stitchesController: form.stkStitches,
-                          getTotal: () => design.stkTotal),
+                          headController: form.stkHeadController,
+                          stitchesController: form.stkStitchesController,
+                          getTotal: () => designCtr.stkTotal),
                       DesignPartInputRow(
                           label: "Blz",
-                          headController: form.blzHead,
-                          stitchesController: form.blzStitches,
-                          getTotal: () => design.blzTotal),
+                          headController: form.blzHeadController,
+                          stitchesController: form.blzStitchesController,
+                          getTotal: () => designCtr.blzTotal),
                     ],
                   ),
                 ),
               ),
-              commonBigField(
+              BigTextField(
                   label: "Add on Prices",
-                  controller: form.addOnPriceController,
-                  onChanged: design.update),
+                  controller: form.addOnPriceController),
             ],
           ),
         ),
@@ -83,91 +84,9 @@ class _HomeViewState extends State<HomeView> {
       bottomNavigationBar: SizedBox(
         height: Get.height * .2,
         child: TotalSummaryCard(
-          getTotal: () => design.grandTotal,
-          onClear: design.clearAllFields,
-          onSave: () => design.validator(),
-        ),
-      ),
-    );
-  }
-
-  Widget _headRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: Get.width * 0.12,
-          child: CommonWidget().poppinsText(
-              text: "Name", textSize: 14.0, textWeight: FontWeight.w400),
-        ),
-        SizedBox(
-          width: Get.width * 0.4,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CommonWidget().poppinsText(
-                  text: "Stitches",
-                  textSize: 14.0,
-                  textWeight: FontWeight.w400),
-              CommonWidget().poppinsText(
-                  text: "Head", textSize: 14.0, textWeight: FontWeight.w400),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: Get.width * 0.18,
-          child: Center(
-            child: CommonWidget().poppinsText(
-                text: "Total", textSize: 14.0, textWeight: FontWeight.w400),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget commonBigField({
-    required String label,
-    required TextEditingController controller,
-    required VoidCallback onChanged,
-  }) {
-    return Center(
-      child: Container(
-        width: Get.width * 0.9,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.whitecolor,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.softtextcolor.withOpacity(.2),
-              blurRadius: 5,
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CommonWidget().poppinsText(
-              text: "$label:",
-              textSize: 12.0,
-              textWeight: FontWeight.w500,
-            ),
-            TextFormField(
-              keyboardType: TextInputType.number,
-              controller: controller,
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "00.00",
-                hintStyle: GoogleFonts.poppins(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.softtextcolor.withOpacity(.5),
-                ),
-              ),
-              onChanged: (_) => onChanged(),
-            ),
-          ],
+          getTotal: () => designCtr.grandTotal,
+          onClear: designCtr.clearAllFields,
+          onSave: () => designCtr.validator(),
         ),
       ),
     );
@@ -210,7 +129,7 @@ class TotalSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CommonWidget().poppinsText(
-              text: "Total Stitches:",
+              text: 'Total Stitches:',
               textSize: 12.0,
               textWeight: FontWeight.w500,
             ),
@@ -226,8 +145,13 @@ class TotalSummaryCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildButton("CLEAR", onClear),
-                _buildButton("SAVE", onSave, filled: true),
+                _buildButton('CLEAR', onClear),
+                Obx(() => _buildButton(
+                    Get.find<DesignController>().isEdit.value
+                        ? 'UPDATE'
+                        : 'SAVE',
+                    onSave,
+                    filled: true)),
               ],
             ),
           ],

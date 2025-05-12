@@ -2,7 +2,6 @@ import 'package:calculator/models/lang_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/lang_controller.dart';
 import 'app_constant.dart';

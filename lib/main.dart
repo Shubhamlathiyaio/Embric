@@ -1,10 +1,12 @@
 import 'package:calculator/controllers/design_controller.dart';
 import 'package:calculator/controllers/design_data_controller.dart';
 import 'package:calculator/controllers/design_form_controller.dart';
+import 'package:calculator/controllers/nav_controller.dart';
 import 'package:calculator/controllers/storage_controller.dart';
 import 'package:calculator/objectbox_store.dart';
 import 'package:calculator/screens/design_detail_view.dart';
 import 'package:calculator/screens/home_screen.dart';
+import 'package:calculator/screens/home_view.dart';
 import 'package:calculator/screens/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +35,7 @@ Future<void> _initlizer(ObjectBoxStore objectBox) async {
   final storage = Get.put(StorageController());
   await storage.init(objectBox.store);
 
+  Get.put(NavController());
   Get.put(DesignFormController());
   Get.put(DesignDataController());
   Get.put(DesignController());
@@ -62,7 +65,8 @@ class MyApp extends StatelessWidget {
         getPages: [
           GetPage(name: '/', page: () => SplashScreen()),
           GetPage(name: '/home', page: () => HomeScreen()),
-          GetPage(name: '/design_list/design_view', page: () => DesignDetailView()),
+          GetPage(name: '/cal', page: () => HomeView()),
+          GetPage(name: '/design_preview', page: () => DesignDetailView()),
         ],
       );
     });
